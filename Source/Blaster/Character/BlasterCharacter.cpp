@@ -4,6 +4,7 @@
 #include "BlasterCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -23,6 +24,9 @@ ABlasterCharacter::ABlasterCharacter()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
+	OverheadWidgetComponent->SetupAttachment(RootComponent);
 }
 
 void ABlasterCharacter::BeginPlay()

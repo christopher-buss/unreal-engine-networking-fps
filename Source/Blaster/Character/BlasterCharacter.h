@@ -7,8 +7,9 @@
 #include "BlasterCharacter.generated.h"
 
 
-class USpringArmComponent;
 class UCameraComponent;
+class USpringArmComponent;
+class UWidgetComponent;
 
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter
@@ -17,9 +18,9 @@ class BLASTER_API ABlasterCharacter : public ACharacter
 
 public:
 	ABlasterCharacter();
-	
+
 	virtual void Tick(float DeltaTime) override;
-	
+
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 protected:
@@ -36,4 +37,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> OverheadWidgetComponent;
 };
