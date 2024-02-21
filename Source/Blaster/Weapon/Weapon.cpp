@@ -6,6 +6,7 @@
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 AWeapon::AWeapon()
@@ -36,8 +37,15 @@ void AWeapon::ShowPickupWidget(const bool bShowWidget) const
 	{
 		return;
 	}
-	
+
 	PickupWidget->SetVisibility(bShowWidget);
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeapon, WeaponState);
 }
 
 void AWeapon::BeginPlay()
@@ -79,4 +87,35 @@ void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* /*OverlappedComponent*/, A
 	}
 
 	BlasterCharacter->SetOverlappingWeapon(nullptr);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst (Needed for dynamic binding)
+void AWeapon::OnRep_WeaponState()
+{
+	switch (WeaponState)
+	{
+	case EWeaponState::Equipped:
+		{
+			ShowPickupWidget(false);
+			AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			break;
+		}
+	default: break;
+	}
+}
+
+void AWeapon::SetWeaponState(const EWeaponState NewState)
+{
+	WeaponState = NewState;
+	
+	switch (WeaponState)
+	{
+	case EWeaponState::Equipped:
+		{
+			ShowPickupWidget(false);
+			GetAreaSphere()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			break;
+		}
+	default: break;
+	}
 }

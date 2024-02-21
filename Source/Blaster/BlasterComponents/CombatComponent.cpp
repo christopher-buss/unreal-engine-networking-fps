@@ -5,6 +5,7 @@
 
 #include "Blaster/Character/BlasterCharacter.h"
 #include "Blaster/Weapon/Weapon.h"
+#include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 
 
@@ -29,7 +30,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	HandSocket->AttachActor(EquippedWeapon, BlasterCharacter->GetMesh());
 	EquippedWeapon->SetOwner(BlasterCharacter);
-	EquippedWeapon->ShowPickupWidget(false);
 }
 
 void UCombatComponent::BeginPlay()
