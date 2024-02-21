@@ -3,6 +3,7 @@
 
 #include "BlasterCharacter.h"
 
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
@@ -29,6 +30,9 @@ ABlasterCharacter::ABlasterCharacter()
 
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(RootComponent);
+
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	CombatComponent->SetIsReplicated(true);
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -38,13 +42,25 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
+void ABlasterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (!ensureAlways(CombatComponent != nullptr))
+	{
+		return;
+	}
+
+	CombatComponent->BlasterCharacter = this;
+}
+
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	if (OverlappingWeapon != nullptr)
 	{
 		OverlappingWeapon->ShowPickupWidget(false);
 	}
-	
+
 	OverlappingWeapon = Weapon;
 
 	if (!IsLocallyControlled() || OverlappingWeapon == nullptr)
@@ -70,6 +86,8 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABlasterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &ABlasterCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ABlasterCharacter::LookUp);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
 }
 
 void ABlasterCharacter::MoveForward(const float Value)
@@ -110,13 +128,29 @@ void ABlasterCharacter::LookUp(const float Value)
 	AddControllerPitchInput(Value);
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ABlasterCharacter::EquipButtonPressed()
+{
+	if (!ensureAlways(CombatComponent != nullptr))
+	{
+		return;
+	}
+
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	CombatComponent->EquipWeapon(OverlappingWeapon);
+}
+
 void ABlasterCharacter::OnRep_OverlappingWeapon(const AWeapon* LastWeapon) const
 {
 	if (OverlappingWeapon != nullptr)
 	{
 		OverlappingWeapon->ShowPickupWidget(true);
 	}
-	
+
 	if (LastWeapon != nullptr)
 	{
 		LastWeapon->ShowPickupWidget(false);

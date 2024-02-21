@@ -52,4 +52,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "WeaponProperties", meta = (AllowPrivateAccess = "true"))
 	EWeaponState WeaponState;
+
+public:
+	FORCEINLINE void SetWeaponState(const EWeaponState NewState) { WeaponState = NewState; }
 };

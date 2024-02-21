@@ -6,9 +6,9 @@
 #include "GameFramework/Character.h"
 #include "BlasterCharacter.generated.h"
 
-
 class AWeapon;
 class UCameraComponent;
+class UCombatComponent;
 class USpringArmComponent;
 class UWidgetComponent;
 
@@ -25,6 +25,7 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostInitializeComponents() override;
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
@@ -35,6 +36,8 @@ protected:
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
+
+	void EquipButtonPressed();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -52,4 +55,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(const AWeapon* LastWeapon) const;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCombatComponent> CombatComponent;
 };
