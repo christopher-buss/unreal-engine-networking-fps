@@ -3,10 +3,12 @@
 
 #include "BlasterCharacter.h"
 
+#include "Blaster/Weapon/Weapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Net/UnrealNetwork.h"
 
 
 ABlasterCharacter::ABlasterCharacter()
@@ -27,6 +29,30 @@ ABlasterCharacter::ABlasterCharacter()
 
 	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidgetComponent"));
 	OverheadWidgetComponent->SetupAttachment(RootComponent);
+}
+
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OUT OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon != nullptr)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	
+	OverlappingWeapon = Weapon;
+
+	if (!IsLocallyControlled() || OverlappingWeapon == nullptr)
+	{
+		return;
+	}
+
+	OverlappingWeapon->ShowPickupWidget(true);
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -82,6 +108,19 @@ void ABlasterCharacter::Turn(const float Value)
 void ABlasterCharacter::LookUp(const float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void ABlasterCharacter::OnRep_OverlappingWeapon(const AWeapon* LastWeapon) const
+{
+	if (OverlappingWeapon != nullptr)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	
+	if (LastWeapon != nullptr)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
 }
 
 void ABlasterCharacter::Tick(const float DeltaTime)

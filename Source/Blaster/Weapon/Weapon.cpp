@@ -30,29 +30,53 @@ AWeapon::AWeapon()
 	PickupWidget->SetupAttachment(RootComponent);
 }
 
+void AWeapon::ShowPickupWidget(const bool bShowWidget) const
+{
+	if (!ensure(PickupWidget != nullptr))
+	{
+		return;
+	}
+	
+	PickupWidget->SetVisibility(bShowWidget);
+}
+
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PickupWidget->SetVisibility(false);	
+	PickupWidget->SetVisibility(false);
 
 	if (HasAuthority())
 	{
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AreaSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
 	}
 }
 
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-                              const FHitResult& SweepResult)
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* /*OverlappedComponent*/, AActor* OtherActor,
+                              UPrimitiveComponent* /*OtherComp*/, int32 /*OtherBodyIndex*/, bool /*bFromSweep*/,
+                              const FHitResult& /*SweepResult*/)
 {
-	const ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
-	if (!BlasterCharacter && !PickupWidget)
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
+	if (!BlasterCharacter)
 	{
 		return;
 	}
 
-	PickupWidget->SetVisibility(true);
+	BlasterCharacter->SetOverlappingWeapon(this);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeStatic (Needed for dynamic binding)
+void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* /*OverlappedComponent*/, AActor* OtherActor,
+                                 UPrimitiveComponent* /*OtherComp*/, int32 /*OtherBodyIndex*/)
+{
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(OtherActor);
+	if (!BlasterCharacter)
+	{
+		return;
+	}
+
+	BlasterCharacter->SetOverlappingWeapon(nullptr);
 }

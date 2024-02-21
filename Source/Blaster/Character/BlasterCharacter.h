@@ -7,6 +7,7 @@
 #include "BlasterCharacter.generated.h"
 
 
+class AWeapon;
 class UCameraComponent;
 class USpringArmComponent;
 class UWidgetComponent;
@@ -22,6 +23,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void SetOverlappingWeapon(AWeapon* Weapon);
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,4 +45,11 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWidgetComponent> OverheadWidgetComponent;
+
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon, VisibleAnywhere, BlueprintReadOnly,
+		Category = "WeaponProperties", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AWeapon> OverlappingWeapon;
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(const AWeapon* LastWeapon) const;
 };
