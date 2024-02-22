@@ -71,6 +71,11 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	OverlappingWeapon->ShowPickupWidget(true);
 }
 
+bool ABlasterCharacter::IsWeaponEquipped() const
+{
+	return CombatComponent && CombatComponent->EquippedWeapon != nullptr;
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
