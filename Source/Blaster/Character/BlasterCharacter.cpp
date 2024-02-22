@@ -78,6 +78,11 @@ bool ABlasterCharacter::IsWeaponEquipped() const
 	return CombatComponent && CombatComponent->EquippedWeapon != nullptr;
 }
 
+bool ABlasterCharacter::IsAiming() const
+{
+	return CombatComponent && CombatComponent->bAiming;
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -96,6 +101,8 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABlasterCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABlasterCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABlasterCharacter::CrouchButtonReleased);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABlasterCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABlasterCharacter::AimButtonReleased);
 }
 
 void ABlasterCharacter::MoveForward(const float Value)
@@ -161,6 +168,24 @@ void ABlasterCharacter::CrouchButtonPressed()
 void ABlasterCharacter::CrouchButtonReleased()
 {
 	UnCrouch();
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst (Needed for dynamic binding)
+void ABlasterCharacter::AimButtonPressed()
+{
+	check(CombatComponent);
+
+	// CombatComponent->bAiming = true;
+	CombatComponent->SetAiming(true);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst (Needed for dynamic binding)
+void ABlasterCharacter::AimButtonReleased()
+{
+	check(CombatComponent);
+
+	// CombatComponent->bAiming = false;
+	CombatComponent->SetAiming(false);
 }
 
 void ABlasterCharacter::OnRep_OverlappingWeapon(const AWeapon* LastWeapon) const

@@ -25,9 +25,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void SetAiming(bool bIsAiming);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bIsAiming);
+
 private:
-	TObjectPtr<ABlasterCharacter> BlasterCharacter;
+	TObjectPtr<ABlasterCharacter> BlasterCharacter = nullptr;
 	
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<AWeapon> EquippedWeapon;
+	TObjectPtr<AWeapon> EquippedWeapon = nullptr;
+
+	UPROPERTY(Replicated)
+	bool bAiming = false;
 };

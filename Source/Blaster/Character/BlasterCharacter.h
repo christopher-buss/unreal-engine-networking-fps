@@ -31,6 +31,8 @@ public:
 
 	bool IsWeaponEquipped() const;
 
+	bool IsAiming() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -41,6 +43,8 @@ protected:
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
 	void CrouchButtonReleased();
+	void AimButtonPressed();
+	void AimButtonReleased();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
